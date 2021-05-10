@@ -1,0 +1,17 @@
+# rcov generated
+coverage
+coverage.data
+
+rdoc
+doc
+.yardoc
+
+.bundle
+pkg
+
+.DS_Store
+/.vscode
+\*.tmproj
+*.swp
+
+*.gem
