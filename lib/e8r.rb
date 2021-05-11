@@ -6,8 +6,8 @@ end
 
 require_relative 'e8r/extensions'
 
-require_relative 'e8r/asynchronized'
-require_relative 'e8r/ractorized'
-require_relative 'e8r/threadified'
+require_relative 'e8r/async'
+require_relative 'e8r/ractor'
+require_relative 'e8r/thread'
 
 E8R::Extensions.install!

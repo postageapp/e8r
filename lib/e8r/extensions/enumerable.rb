@@ -1,13 +1,23 @@
 module E8R::Extensions::Enumerable
-  def threadified(&block)
-    E8R::Threadified.new(each, &block)
+  # == Constants =============================================================
+
+  # NOTE: Avoid creating constants in this scope as they could get mixed in
+
+  # == Mixin Methods =========================================================
+
+  def threaded(pool: nil, &block)
+    E8R::Thread::Enumerator.new(each, &block)
   end
 
-  def ractorized(&block)
-    E8R::Ractorized.new(each, &block)
+  def ractored(pool: nil, &block)
+    E8R::Ractor::Enumerator.new(each, &block)
   end
 
-  def asynchronized(&block)
-    E8R::Asynchronized.new(each, &block)
+  def async(&block)
+    if (block_given?)
+      E8R::Async::Enumerator.new(each).each(&block)
+    else
+      E8R::Async::Enumerator.new(each)
+    end
   end
 end

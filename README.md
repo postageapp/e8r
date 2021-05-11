@@ -5,15 +5,43 @@ to expand the contexts in which that approach can be used.
 
 The initial targets are:
 
-* Threads, including thread pools
-* Ractors, including ractor pools
 * [Async](https://github.com/socketry/async) tasks
+* Threads using an optional thread pool
+* Ractors, using an optional ractor pool
 
 > This is currently an experimental project. The names are all arbitrary and
 > subject to change.
 
-## Usage
+## Installation
+
+Add to your `Gemfile`:
 
 ```ruby
 gem 'e8r'
+```
+
+Then:
+
+```shell
+bundle install
+```
+
+## Usage
+
+E8R patches into Enumerable and Enumerator to add these new capabilities.
+
+### Async
+
+```ruby
+example = (1..100).to_a
+accum = [ ]
+
+example.async do |e|
+  Async do
+    accum << e * 2
+  end
+end.wait
+
+accum
+
 ```
