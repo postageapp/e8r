@@ -22,6 +22,36 @@ RSpec.describe E8R::Async, type: :reactor do
         expect(captured).to eq(list)
       end
 
+      describe 'to convert an enumerator to an Async version' do
+        it 'for a simple chained call' do
+          list = %w[ a b c d e f g ]
+
+          remapped = list.each.async.map do |v|
+            Async do |task|
+              v + '!'
+            end
+          end.to_a
+
+          expect(remapped).to eq(list.map { |v| v + '!' })
+        end
+
+        it 'for a doubly chained call' do
+          list = %w[ a b c d e f g ]
+
+          remapped = list.each.async.map do |v|
+            Async do
+              v + '!'
+            end
+          end.map do |v|
+            Async do
+              v.upcase
+            end
+          end.to_a
+
+          expect(remapped).to eq(list.map { |v| v.upcase + '!' })
+        end
+      end
+
       it 'to convert an enumerator to an Async version' do
         list = %w[ a b c d e f g ]
 
@@ -29,7 +59,7 @@ RSpec.describe E8R::Async, type: :reactor do
           Async do |task|
             v + '!'
           end
-        end
+        end.to_a
 
         expect(remapped).to eq(list.map { |v| v + '!' })
       end

@@ -9,52 +9,32 @@ class E8R::Async::Enumerator < ::Enumerator
 
   # == Class Methods ========================================================
 
-  # == Instance Methods =====================================================
-
-  def initialize(parent, &block)
-    @parent = parent
-
-    @finished = Async::Condition.new
-
-    super(@parent.size) do |y|
-      # FIX: This needs to pass `y` to block where no parent is given
+  def self.for(parent, parallel: nil, &block)
+    new(parent, parallel: parallel) do |y|
       loop do
-        y << wait_on(@parent.next, &block)
+        # FIX: Use read index, conditionally write when sequenced
+        y << E8R.wait(parent.next, &block)
       end
 
     rescue StopIteration
       # Expected end condition.
     end
+  end
 
-    @finished.signal
+  # == Instance Methods =====================================================
+
+  def initialize(parent, parallel: nil, &block)
+    @parent = parent
+    @parallel = parallel&.to_i
+
+    super(@parent&.size, &block)
   end
 
   def map(&block)
-    super do |e|
-      wait_on(e, &block)
-    end
+    self.class.for(self, parallel: @parallel, &block)
   end
 
   def wait
     @finished.wait
-  end
-
-protected
-  def wait_on(obj, &block)
-    if (block_given?)
-      case (result = block.call(obj))
-      when ::Async::Task
-        result.wait
-      else
-        result
-      end
-    else
-      case (obj)
-      when ::Async::Task
-        obj.wait
-      else
-        obj
-      end
-    end
   end
 end

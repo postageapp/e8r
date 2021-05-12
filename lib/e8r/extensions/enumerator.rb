@@ -6,14 +6,14 @@ module E8R::Extensions::Enumerator
     # == Mixin Methods =========================================================
 
   def threaded(pool: nil, &block)
-    E8R::Thread::Enumerator.new(self, pool: pool, &block)
+    E8R::Thread::Enumerator.for(self, pool: pool, &block)
   end
 
   def ractored(pool: nil, &block)
-    E8R::Ractor::Enumerator.new(self, pool: pool, &block)
+    E8R::Ractor::Enumerator.for(self, pool: pool, &block)
   end
 
-  def async(&block)
-    E8R::Async::Enumerator.new(self, &block)
+  def async(parallel: nil, &block)
+    E8R::Async::Enumerator.for(self, parallel: parallel, &block)
   end
 end
