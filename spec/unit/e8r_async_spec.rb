@@ -86,33 +86,50 @@ RSpec.describe E8R::Async, type: :reactor do
   end
 
   describe 'extends Enumerable' do
-    it 'to provide an Async aware iterator' do
-      list = (1..10).to_a
-      collected = [ ]
+    describe 'to provide an Async aware iterator' do
+      it 'that can be given a block' do
+        list = (1..10).to_a
+        collected = [ ]
 
-      list.async do |v|
-        Async do
-          collected << v * 2
+        list.async do |v|
+          Async do
+            collected << v * 2
+          end
         end
+
+        expect(collected).to eq(list.map { |v| v * 2 })
       end
 
-      expect(collected).to eq(list.map { |v| v * 2 })
-    end
+      it 'that can be extended with .map' do
+        list = %w[ a b c d e f g ]
 
-    it 'to provide an Async aware enumerator' do
-      list = %w[ a b c d e f g ]
-
-      enumerator = list.async.map do |v|
-        Async do
-          v + Async do
-            '!'
-          end.wait
+        enumerator = list.async.map do |v|
+          Async do
+            v + Async do
+              '!'
+            end.wait
+          end
         end
+
+        result = enumerator.to_a
+
+        expect(result).to eq(list.map { |v| v + '!' })
       end
 
-      result = enumerator.to_a
+      it 'that can be extended with .each' do
+        list = %w[ a b c d e f g ]
+        accum = [ ]
 
-      expect(result).to eq(list.map { |v| v + '!' })
+        enumerator = list.async.each do |v|
+          Async do
+            accum << v
+          end
+        end
+
+        result = enumerator.to_a
+
+        expect(accum).to eq(list)
+      end
     end
   end
 end
